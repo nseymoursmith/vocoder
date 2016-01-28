@@ -12,8 +12,8 @@
    rq-voc 0.65
    rq-synth 0.65
    distance 1.0
-   voc-band-gain 1.0
-   src-band-gain 1.0
+   voc-gain 1.0
+   src-gain 1.0
    comp-gain 1.0
    fsib 8000.0
    sib-gain 1.0
@@ -26,29 +26,26 @@
         bands (range (. nbands value))
         exp-base (pow (/ fmax fmin) (/ nbands))
         band-freqs (map #(* fmin (pow exp-base (+ % 1))) bands)
-        voc-bands (map #(bpf input % rq-voc) band-freqs)
+        voc (* voc-gain input)
+        voc-bands (map #(bpf voc % rq-voc) band-freqs)
         voc-amps (map (fn [band center] 
                         (let [tau (* distance (/ center))]
                           (amplitude band tau tau)))
                       voc-bands band-freqs)
-        voc-amps (map #(* voc-band-gain %) voc-amps)
 
         ; - src band amplification and mixing-
+        src (* src-gain src)
         src-bands (map #(bpf src % rq-synth) band-freqs)
-        src-bands (map #(* src-band-gain %) src-bands)
         src-voc-mix (map * src-bands voc-amps)
-
-        ; - signal re-composition -
-        composited (sum src-voc-mix)
-        composited (* comp-gain composited)
+        composited (* comp-gain (sum src-voc-mix))
 
         ; - white-noise synthesis for sibilance - ;
         a (buffer 2048)
         b (buffer 2048)
         noise-source (white-noise)
         formed (pv-mul (fft a input) (fft b noise-source))
-        noise-synth (ifft formed)
-        sibilance (hpf noise-synth fsib)
+        sib-synth (ifft formed)
+        sibilance (hpf sib-synth fsib)
         synth-level (amplitude:kr src)
         sibilance (* sib-gain synth-level sibilance)
 
