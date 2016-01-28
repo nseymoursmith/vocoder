@@ -22,15 +22,6 @@
         src (in bus)
         input (in mic-input)
 
-        ; - white-noise synthesis for sibilance - ;
-        a (buffer 2048)
-        b (buffer 2048)
-        noise-source (white-noise)
-        formed (pv-mul (fft a input) (fft b noise-source))
-        noise-synth (ifft formed)
-        sibilance (hpf noise-synth fsib)
-        sibilance (* sib-gain sibilance)
-
         ; - mic frequency band amplitudes -
         bands (range (. nbands value))
         exp-base (pow (/ fmax fmin) (/ nbands))
@@ -50,6 +41,17 @@
         ; - signal re-composition -
         composited (sum src-voc-mix)
         composited (* comp-gain composited)
+
+        ; - white-noise synthesis for sibilance - ;
+        a (buffer 2048)
+        b (buffer 2048)
+        noise-source (white-noise)
+        formed (pv-mul (fft a input) (fft b noise-source))
+        noise-synth (ifft formed)
+        sibilance (hpf noise-synth fsib)
+        synth-level (amplitude:kr src)
+        sibilance (* sib-gain synth-level sibilance)
+
         output (sum [composited sibilance])]
     (replace-out bus (* gain output))))
 
