@@ -2,6 +2,12 @@
   (:use [overtone.live]
         [overtone.inst.synth]))
 
+(defn- log-spacing
+  [fmin fmax nbands]
+  (let [base (pow (/ fmax fmin) (/nbands))
+        n (range nbands)]
+    (map #(* fmin (pow base (+ % 1))) n)))
+
 (defsynth vocoder
   [bus 0
    mic-input 8
@@ -22,10 +28,8 @@
         input (in mic-input)
 
         ; - mic frequency band amplitudes -
-        exp-base (pow (/ fmax fmin) (/ nbands))
-        band-freqs (map #(* fmin (pow exp-base (+ % 1))) 
-                        (range (. nbands value)))
         voc (* voc-gain input)
+        band-freqs (log-spacing fmin fmax (. nbands value))
         voc-bands (map #(bpf voc % rq-voc) band-freqs)
         voc-amps (map (fn [band center] 
                         (let [tau (* distance (/ center))]
