@@ -1,7 +1,6 @@
 (ns vocoder.core
   (:use [overtone.live]
-        [overtone.inst.synth]
-        [overtone.studio.scope]))
+        [overtone.inst.synth]))
 
 (defsynth vocoder
   [bus 0
@@ -23,9 +22,9 @@
         input (in mic-input)
 
         ; - mic frequency band amplitudes -
-        bands (range (. nbands value))
         exp-base (pow (/ fmax fmin) (/ nbands))
-        band-freqs (map #(* fmin (pow exp-base (+ % 1))) bands)
+        band-freqs (map #(* fmin (pow exp-base (+ % 1))) 
+                        (range (. nbands value)))
         voc (* voc-gain input)
         voc-bands (map #(bpf voc % rq-voc) band-freqs)
         voc-amps (map (fn [band center] 
@@ -33,7 +32,7 @@
                           (amplitude band tau tau)))
                       voc-bands band-freqs)
 
-        ; - src band amplification and mixing-
+        ; - extract and mix src bands -
         src (* src-gain src)
         src-bands (map #(bpf src % rq-synth) band-freqs)
         src-voc-mix (map * src-bands voc-amps)
@@ -46,8 +45,8 @@
         formed (pv-mul (fft a input) (fft b noise-source))
         sib-synth (ifft formed)
         sibilance (hpf sib-synth fsib)
-        synth-level (amplitude:kr src)
-        sibilance (* sib-gain synth-level sibilance)
+        src-level (amplitude:kr src)
+        sibilance (* sib-gain src-level sibilance)
 
         output (sum [composited sibilance])]
     (replace-out bus (* gain output))))
