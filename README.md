@@ -1,5 +1,9 @@
 # vocoder for clojure's Overtone
 
+   It makes robot-y vocals, like this: 
+  
+   https://www.youtube.com/watch?v=B49chBviCe0
+
    Vocoder emulator, designed to be attached as an fx instance to an
    instrument or to other synths via bus.
 
