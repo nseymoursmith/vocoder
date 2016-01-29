@@ -1,7 +1,7 @@
 (ns vocoder.vocoder-example
   (:use [overtone.live]
         [vocoder.core]))
-
+(vocoder)
 ;;This synth works well with the vocoder presets
 (definst pad2
   [note 60 t 10 amt 0.3 amp 0.1 a 0.4 d 0.5 s 0.8 r 2 gate 1]
@@ -23,6 +23,15 @@
   (def voco (inst-fx! pad2 vocoder))
   (def voc-player (midi-poly-player pad2))
 )
+
+;;Or attach vocoder to synth and just play a note
+;;and play using ctl
+(do
+  (def voco (inst-fx! pad2 vocoder))
+  (pad2)
+)
+(ctl pad2 :note 50)
+
 ;;Stop midi, kill fx and synths
 (do
   (clear-fx pad2)
