@@ -2,7 +2,7 @@
 
    It makes robot-y vocals, like this: 
   
-   https://www.youtube.com/watch?v=B49chBviCe0
+  https://www.youtube.com/watch?v=BSsXYisIE4E
 
    Vocoder emulator, designed to be attached as an fx instance to an
    instrument or to other synths via bus.
