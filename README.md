@@ -1,4 +1,4 @@
-# vocoder
+# vocoder for clojure's Overtone
 
    Vocoder emulator, designed to be attached as an fx instance to an
    instrument or to other synths via bus.
