@@ -17,7 +17,7 @@
    as the vocoder's. You will need to experiment with your synth to get the
    the sounds you want, but these defaults work well to give a 'roboty'
    sound using the pad synth in overtone.inst.synth library (you might need
-   to tweak it to gate rather than have a perc envelope though).
+   to tweak it to gate properly though, see example folder).
 
    Enjoy and send feedback to @nseymoursmith on twitter and github.
 
