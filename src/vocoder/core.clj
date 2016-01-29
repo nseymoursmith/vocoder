@@ -8,8 +8,6 @@
     (if (zero? n) signal
         (recur (dec n) (bpf signal freq rq)))))
 
-(vocoder)
-
 (defsynth vocoder
   "
    Vocoder emulator, designed to be attached as an fx instance to an
