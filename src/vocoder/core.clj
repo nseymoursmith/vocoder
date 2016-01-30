@@ -8,6 +8,14 @@
     (if (zero? n) signal
         (recur (dec n) (bpf signal freq rq)))))
 
+(defn- log-spacing
+  "List of numbers, evenly spaced on a logarithmic scale, 
+  'end' value inclusive"
+  [start end steps]
+  (let [base (Math/pow (/ end start) (/ steps))
+        n (range steps)]
+    (map #(* start (Math/pow base (+ % 1))) n)))
+
 (defsynth vocoder
   "
    Vocoder emulator, designed to be attached as an fx instance to an
@@ -49,14 +57,8 @@
                               :slope-below comp-slope)
         voc (* voc-gain compressed)
         voc-level (amplitude:kr voc 0.1 0.1)
-        fmin* (. fmin value)
-        fmax* (. fmax value)
-        nbands* (. nbands value)
-        base (Math/pow (/ fmax* fmin*) (/ nbands*))
-        n (range nbands*)
-        band-freqs (map #(* fmin* (Math/pow base (+ % 1))) n)
-        stages* (. stages value)
-        voc-bands (map #(nbpf voc % rq-voc stages*) band-freqs)
+        band-freqs (log-spacing (. fmin value) (. fmax value) (. nbands value))
+        voc-bands (map #(nbpf voc % rq-voc (. stages value)) band-freqs)
         taus (map #(/ distance %) band-freqs)
         voc-amps (map (fn [band tau] (amplitude band tau tau)) 
                       voc-bands taus)
@@ -64,7 +66,7 @@
         ; - extract and mix src bands -
         src (* src-gain src)
         src-level (amplitude:kr src 0.1 0.1)
-        src-bands (map #(nbpf src % rq-synth stages*) band-freqs)
+        src-bands (map #(nbpf src % rq-synth (. stages value)) band-freqs)
         src-voc-mix (map * src-bands voc-amps)
         composited (* combination-gain (sum src-voc-mix))
 
